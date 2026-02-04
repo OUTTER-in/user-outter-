@@ -68,7 +68,9 @@ export default function Home() {
         </View>
 
         <TouchableOpacity style={styles.primaryButton}>
-          <Text style={styles.primaryText}>Get OTP →</Text>
+          <Text onPress={() => router.push("/home")} style={styles.primaryText}>
+            Get OTP →
+          </Text>
         </TouchableOpacity>
 
         <Text style={styles.or}>OR CONTINUE WITH</Text>

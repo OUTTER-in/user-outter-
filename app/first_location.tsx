@@ -105,15 +105,7 @@ const DeliveryLocationPicker: React.FC = () => {
   const mapRef = useRef<MapView>(null);
   const searchTimeout = useRef<NodeJS.Timeout | null>(null);
 
-  useEffect(() => {
-    if (GOOGLE_MAPS_API_KEY === "AIzaSyCqJ7Z0kRWRk7IueXLemwjtwkmL3P9Lm3w") {
-      Alert.alert(
-        "API Key Required",
-        "Please add your Google Maps API key in the code.",
-        [{ text: "OK" }],
-      );
-    }
-  }, []);
+  
 
   useEffect(() => {
     (async () => {

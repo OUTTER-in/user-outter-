@@ -37,11 +37,10 @@
     "react-dom": "19.1.0",
     "react-native": "0.81.5",
     "react-native-gesture-handler": "~2.28.0",
-<<<<<<< HEAD
+    "react-native-gesture-handler": "~2.28.0",
     "react-native-maps": "1.20.1",
-=======
     "react-native-keyboard-aware-scroll-view": "^0.9.5",
->>>>>>> 7dc7d046968d7008e90fb4a7bee65b667c723a61
+    "react-native-reanimated": "~3.17.4",
     "react-native-reanimated": "~3.17.4",
     "react-native-safe-area-context": "^5.4.0",
     "react-native-screens": "~4.16.0",

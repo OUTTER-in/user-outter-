@@ -49,22 +49,27 @@ export default function Home() {
 
         {/* MAIN CARDS */}
         <View style={styles.bigCards}>
-          <View style={[styles.bigCard, { backgroundColor: "#1973cc" }]}>
+  
+          <TouchableOpacity
+            style={[styles.bigCard, { backgroundColor: "#1973cc" }]}
+            onPress={() => router.push("/first_location")}
+            activeOpacity={0.8}
+          >
             <Ionicons name="cube-outline" size={32} color="#fff" />
-            <Text
-              onPress={() => router.push("/first_location")}
-              style={styles.bigTitle}
-            >
-              Get Goods
-            </Text>
+            <Text style={styles.bigTitle}>Get Goods</Text>
             <Text style={styles.bigSub}>From market or anywhere</Text>
-          </View>
+          </TouchableOpacity>
 
-          <View style={[styles.bigCard, { backgroundColor: "#00a6ff" }]}>
+          <TouchableOpacity
+            style={[styles.bigCard, { backgroundColor: "#00a6ff" }]}
+            onPress={() => router.push("/first_location")}
+            activeOpacity={0.8}
+          >
             <Ionicons name="swap-horizontal-outline" size={32} color="#fff" />
             <Text style={styles.bigTitle}>Pickup & Drop</Text>
             <Text style={styles.bigSub}>From home or anywhere</Text>
-          </View>
+          </TouchableOpacity>
+
         </View>
 
         {/* ALL SERVICES */}

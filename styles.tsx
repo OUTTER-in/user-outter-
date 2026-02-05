@@ -97,19 +97,7 @@ export const styles = StyleSheet.create({
   offerTitle: { fontWeight: "600", marginTop: 8 },
   offerSub: { color: "#777", fontSize: 12 },
 
-  bottomTab: {
-    left: 0,
-    right: 0,
-    backgroundColor: "#fff",
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
-    borderTopWidth: 1,
-    borderColor: "#eee",
-    paddingTop: 8,
-  },
-  tabItem: { alignItems: "center" },
-  tabText: { fontSize: 12, color: "#777" },
+  
   bigTab: {
     width: 56,
     height: 56,

@@ -1,16 +1,26 @@
+import { Feather, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { useState } from "react";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+import DateTimePicker from '@react-native-community/datetimepicker';
 import React from "react";
+import { sendSignInLinkToEmail } from "firebase/auth";
+import { auth } from "../firebaseConfig";
 import {
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
+  ScrollView,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Home() {
   const router = useRouter();
+  const [date, setDate] = useState(new Date());
+  const [showPicker, setShowPicker] = useState(false);
+  const [dobText, setDobText] = useState("");
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
       {/* Header */}
@@ -42,55 +52,94 @@ export default function Home() {
           ))}
         </View>
       </View>
+      <KeyboardAwareScrollView
+        showsVerticalScrollIndicator={false}
+        enableOnAndroid={true}
+        extraScrollHeight={20}
+      >
+        {/* Content */}
+        <View style={styles.content}>
+          <View style={styles.features}>
+            <Text style={styles.feature}>⚡ Fast Delivery</Text>
+            <Text style={styles.feature}>📍 Live Tracking</Text>
+            <Text style={styles.feature}>🔒 Safe & Secure</Text>
+          </View>
 
-      {/* Content */}
-      <View style={styles.content}>
-        <View style={styles.features}>
-          <Text style={styles.feature}>⚡ Fast Delivery</Text>
-          <Text style={styles.feature}>📍 Live Tracking</Text>
-          <Text style={styles.feature}>🔒 Safe & Secure</Text>
-        </View>
+          <Text style={styles.title}>Create Account</Text>
+          <Text style={styles.subtitle}>Sign up to start ordering</Text>
 
-        <Text style={styles.title}>Create Account</Text>
-        <Text style={styles.subtitle}>Sign up to start ordering</Text>
+          <View style={styles.input}>
+            <Text style={styles.code}>+91</Text>
+            <TextInput
+              placeholder="Mobile number"
+              keyboardType="phone-pad"
+              style={styles.textInput}
+            />
+          </View>
 
-        <View style={styles.input}>
-          <Text style={styles.code}>+91</Text>
-          <TextInput
-            placeholder="Enter mobile number"
-            keyboardType="phone-pad"
-            style={styles.textInput}
-          />
-        </View>
+          <View style={styles.input}>
+            <Ionicons name="person-outline" size={25} color="black" style={styles.code}/>
+            <TextInput placeholder="Name" style={styles.textInput} />
+          </View>
+          <View style={styles.input}>
+            <Text style={styles.code}>@</Text>
+            <TextInput placeholder="Email ID (xyz@gmail.com)" style={styles.textInput} />
+          </View>
+          <View style={styles.input}>
+            <Ionicons name="calendar-outline" size={25} color="black" style={styles.code}/>
+            <TouchableOpacity
+              style={{ flex: 1 }}
+              onPress={() => setShowPicker(true)}
+            >
+              <Text style={{ fontSize: 14, color: dobText ? "black" : "#9CA3AF" }}>
+                {dobText || "Date Of Birth"}
+              </Text>
+            </TouchableOpacity>
+          </View>
 
-        <View style={styles.input}>
-          <TextInput placeholder="Enter your name" style={styles.textInput} />
-        </View>
+          {showPicker && (
+            <DateTimePicker
+              value={date}
+              mode="date"
+              display="default"
+              maximumDate={new Date()}
+              onChange={(event, selectedDate) => {
+                setShowPicker(false);
+                if (selectedDate) {
+                  setDate(selectedDate);
+                  setDobText(
+                    selectedDate.toLocaleDateString("en-GB")
+                  );
+                }
+              }}
+            />
+          )}
 
-        <TouchableOpacity style={styles.primaryButton}>
-          <Text onPress={() => router.push("/home")} style={styles.primaryText}>
-            Get OTP →
-          </Text>
-        </TouchableOpacity>
-
-        <Text style={styles.or}>OR CONTINUE WITH</Text>
-
-        <View style={styles.socialRow}>
-          <TouchableOpacity style={styles.socialBtn}>
-            <Text style={styles.socialText}>Google</Text>
+          <TouchableOpacity style={styles.primaryButton}>
+            <Text onPress={() => router.push("/home")} style={styles.primaryText}>
+              Get OTP →
+            </Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.socialBtn}>
-            <Text style={styles.socialText}>Apple</Text>
-          </TouchableOpacity>
-        </View>
 
-        <Text style={styles.login}>
-          Already have an account?{" "}
-          <Text onPress={() => router.push("/login")} style={styles.loginLink}>
-            Login
+          <Text style={styles.or}>OR CONTINUE WITH</Text>
+
+          <View style={styles.socialRow}>
+            <TouchableOpacity style={styles.socialBtn}>
+              <Text style={styles.socialText}>Google</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.socialBtn}>
+              <Text style={styles.socialText}>Apple</Text>
+            </TouchableOpacity>
+          </View>
+
+          <Text style={styles.login}>
+            Already have an account?{" "}
+            <Text onPress={() => router.push("/login")} style={styles.loginLink}>
+              Login
+            </Text>
           </Text>
-        </Text>
-      </View>
+        </View> 
+      </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 }
@@ -173,7 +222,7 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
 
-  code: { marginRight: 10, fontWeight: "600" },
+  code: { marginRight: 10, fontWeight: "600" , fontSize: 15 },
   textInput: { flex: 1, fontSize: 14 },
 
   primaryButton: {

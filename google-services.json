@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "875519713153",
+    "project_id": "outter-e41d7",
+    "storage_bucket": "outter-e41d7.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:875519713153:android:794d0392fb3aed962b5280",
+        "android_client_info": {
+          "package_name": "com.Hriday.outter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD6AYgm6rgVGgqlqoFHAhkIZH1ysAN3bus"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:875519713153:android:c85f1c8cea9da5312b5280",
+        "android_client_info": {
+          "package_name": "com.anonymous.Mobileapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD6AYgm6rgVGgqlqoFHAhkIZH1ysAN3bus"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

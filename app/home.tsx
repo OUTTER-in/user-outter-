@@ -1,6 +1,7 @@
 import { Feather, Ionicons, MaterialIcons } from "@expo/vector-icons";
-import { Image } from "react-native";
+import { router } from "expo-router";
 import {
+  Image,
   ScrollView,
   StyleSheet,
   Text,
@@ -50,7 +51,12 @@ export default function Home() {
         <View style={styles.bigCards}>
           <View style={[styles.bigCard, { backgroundColor: "#1973cc" }]}>
             <Ionicons name="cube-outline" size={32} color="#fff" />
-            <Text style={styles.bigTitle}>Get Goods</Text>
+            <Text
+              onPress={() => router.push("/first_location")}
+              style={styles.bigTitle}
+            >
+              Get Goods
+            </Text>
             <Text style={styles.bigSub}>From market or anywhere</Text>
           </View>
 
@@ -149,14 +155,14 @@ export default function Home() {
           <TouchableOpacity style={styles.tabItem}>
             <View style={styles.container}>
               <Image
-                source={require('../assets/appsize.png')}
+                source={require("../assets/appsize.png")}
                 style={{
                   width: 40,
                   height: 40,
-                  borderRadius:20,   // half of 40
+                  borderRadius: 20, // half of 40
                 }}
-  resizeMode="cover"
-/>
+                resizeMode="cover"
+              />
             </View>
           </TouchableOpacity>
         </View>
@@ -241,14 +247,14 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
-    
+
     backgroundColor: "#0A84FF",
     padding: 35,
     borderBottomLeftRadius: 25,
     borderBottomRightRadius: 25,
   },
 
-  deliverText: {  fontSize: 12, color: "#ffffff" },
+  deliverText: { fontSize: 12, color: "#ffffff" },
   locationRow: { flexDirection: "row", alignItems: "center", gap: 4 },
   location: { fontWeight: "600", color: "#ffffff" },
 
@@ -264,7 +270,12 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
 
-  title: { padding:25,fontSize: 26, fontWeight: "700", paddingHorizontal: 16 },
+  title: {
+    padding: 25,
+    fontSize: 26,
+    fontWeight: "700",
+    paddingHorizontal: 16,
+  },
   highlight: { color: "#007AFF" },
   subtitle: { color: "#777", paddingHorizontal: 16, marginBottom: 16 },
 
@@ -351,58 +362,58 @@ const styles = StyleSheet.create({
   },
 
   bottomTab: {
-  flexDirection: "row",
-  backgroundColor: "#fff",
-  borderRadius: 28,
-  paddingVertical: 12,
-  width: "92%",
-  alignItems: "center",
+    flexDirection: "row",
+    backgroundColor: "#fff",
+    borderRadius: 28,
+    paddingVertical: 12,
+    width: "92%",
+    alignItems: "center",
 
-  // REMOVE justifyContent: "space-between"
+    // REMOVE justifyContent: "space-between"
 
-  // Shadow (iOS)
-  shadowColor: "#000",
-  shadowOpacity: 0.1,
-  shadowRadius: 10,
-  shadowOffset: { width: 0, height: 4 },
+    // Shadow (iOS)
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
 
-  // Shadow (Android)
-  elevation: 8,
+    // Shadow (Android)
+    elevation: 8,
   },
-tabItem: {
-  flex: 1,                // 👈 Equal width for all tabs
-  alignItems: "center",
-  justifyContent: "center",
-  gap: 2,
-},
+  tabItem: {
+    flex: 1, // 👈 Equal width for all tabs
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 2,
+  },
   tabText: {
     fontSize: 11,
     color: "#777",
   },
 
   centerTab: {
-  flex: 1,                // 👈 Important for equal spacing
-  alignItems: "center",
-  justifyContent: "center",
+    flex: 1, // 👈 Important for equal spacing
+    alignItems: "center",
+    justifyContent: "center",
 
-  width: 58,
-  height: 58,
-  borderRadius: 29,
-  backgroundColor: "#007AFF",
-  marginTop: -10,
+    width: 58,
+    height: 58,
+    borderRadius: 29,
+    backgroundColor: "#007AFF",
+    marginTop: -10,
 
-  shadowColor: "#007AFF",
-  shadowOpacity: 0.4,
-  shadowRadius: 8,
-  elevation: 10,
-},
+    shadowColor: "#007AFF",
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 10,
+  },
   container: {
     padding: 10,
     borderRadius: 28,
   },
   image: {
-    width: 200,  // Static images need width and height specified in style
+    width: 200, // Static images need width and height specified in style
     height: 200, // unless using flexbox, in which case you may need to set { width: undefined, height: undefined }
     borderRadius: 28,
-  }
+  },
 });

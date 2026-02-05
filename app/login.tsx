@@ -1,4 +1,9 @@
 import { useRouter } from "expo-router";
+import { useState } from "react";
+import { auth,db } from "../firebaseConfig";
+import { Ionicons } from "@expo/vector-icons";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import React from "react";
 import {
   StyleSheet,
@@ -11,6 +16,34 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Login() {
   const router = useRouter();
+    const [password, setPassword] = useState("");
+    const [email, setEmail] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
+
+    const handleLogin = async () => {
+      try {
+        const userCredential = await signInWithEmailAndPassword(
+          auth,
+          email,
+          password
+        );
+
+        const user = userCredential.user;
+
+        await user.reload(); // refresh verification status
+
+        if (!user.emailVerified) {
+          alert("Please verify your email first.");
+          await auth.signOut();
+          return;
+        }
+
+        router.replace("/home");
+
+      } catch (error: any) {
+        alert(error.message);
+      }
+    };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -44,7 +77,11 @@ export default function Login() {
           ))}
         </View>
       </View>
-
+      <KeyboardAwareScrollView
+              showsVerticalScrollIndicator={false}
+              enableOnAndroid={true}
+              extraScrollHeight={40}
+            >
       {/* ===== WHITE CONTENT ===== */}
       <View style={styles.content}>
         {/* Features */}
@@ -59,17 +96,43 @@ export default function Login() {
 
         {/* Phone Input */}
         <View style={styles.input}>
-          <Text style={styles.code}>+91</Text>
-          <TextInput
-            placeholder="Enter mobile number"
-            keyboardType="phone-pad"
-            style={styles.textInput}
+          <Text style={styles.code}>@</Text>
+          <TextInput placeholder="Email ID (xyz@gmail.com)" style={styles.textInput} value={email}
+            onChangeText={setEmail}
+            autoCapitalize="none"/>
+        </View>
+
+        <View style={styles.input}>
+          <Ionicons
+            name="key-outline"
+            size={25}
+            color="black"
+            style={styles.code}
           />
+
+          <TextInput
+            placeholder="Password"
+            secureTextEntry={!showPassword}
+            value={password}
+            onChangeText={setPassword}
+            style={{ flex: 1 }}
+          />
+
+          <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+            <Ionicons
+              name={showPassword ? "eye-off-outline" : "eye-outline"}
+              size={22}
+              color="gray"
+            />
+          </TouchableOpacity>
         </View>
 
         {/* Login Button */}
-        <TouchableOpacity style={styles.primaryButton}>
-          <Text onPress={() => router.push("/home")} style={styles.primaryText}>
+        <TouchableOpacity
+          style={styles.primaryButton}
+          onPress={handleLogin}
+        >
+          <Text style={styles.primaryText}>
             Login →
           </Text>
         </TouchableOpacity>
@@ -102,6 +165,7 @@ export default function Login() {
           </Text>
         </View>
       </View>
+      </KeyboardAwareScrollView>
     </SafeAreaView>
   );
 }
@@ -195,25 +259,20 @@ const styles = StyleSheet.create({
   },
 
   input: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#fff",
-    padding: 14,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
-    marginBottom: 16,
-  },
+  flexDirection: "row",
+  alignItems: "center",
+  backgroundColor: "#fff",
+  borderRadius: 12,
+  paddingHorizontal: 14,
+  paddingVertical: 12,
+  borderWidth: 1,
+  borderColor: "#E5E7EB",
+  marginBottom: 14,
+},
 
-  code: {
-    marginRight: 10,
-    fontWeight: "600",
-  },
+  code: { marginRight: 10, fontWeight: "600" , fontSize: 15 },
+  textInput: { flex: 1, fontSize: 14 },
 
-  textInput: {
-    flex: 1,
-    fontSize: 14,
-  },
 
   primaryButton: {
     backgroundColor: "#0A84FF",

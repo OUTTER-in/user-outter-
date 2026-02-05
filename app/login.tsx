@@ -139,7 +139,7 @@ export default function Login() {
 
         <Text style={styles.or}>OR CONTINUE WITH</Text>
 
-        {/* Social */}
+        {/*
         <View style={styles.socialRow}>
           <TouchableOpacity style={styles.socialBtn}>
             <Text>Google</Text>
@@ -147,7 +147,7 @@ export default function Login() {
           <TouchableOpacity style={styles.socialBtn}>
             <Text>Apple</Text>
           </TouchableOpacity>
-        </View>
+        </View>*/}
 
         {/* Sign Up */}
         <Text style={styles.loginText}>

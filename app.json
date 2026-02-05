@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "Mobile-app",
-    "slug": "Mobile-app",
+    "name": "Outter",
+    "slug": "outter",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "mobileapp",
+    "scheme": "outter",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {

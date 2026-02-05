@@ -49,7 +49,7 @@ export default function Home() {
 
         {/* MAIN CARDS */}
         <View style={styles.bigCards}>
-          <View style={[styles.bigCard, { backgroundColor: "#1e85ed" }]}>
+          <View style={[styles.bigCard, { backgroundColor: "#1973cc" }]}>
             <Ionicons name="cube-outline" size={32} color="#fff" />
             <Text
               onPress={() => router.push("/first_location")}

@@ -62,7 +62,7 @@ export default function Home() {
 
           <TouchableOpacity
             style={[styles.bigCard, { backgroundColor: "#00a6ff" }]}
-            onPress={() => router.push("/first_location")}
+            onPress={() => router.push("/grocery")}
             activeOpacity={0.8}
           >
             <Ionicons name="swap-horizontal-outline" size={32} color="#fff" />

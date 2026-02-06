@@ -1,27 +1,26 @@
-import React from "react";
-import {Text, StyleSheet } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { API_CONFIG } from './deliveryConfig';
 
-const Order: React.FC = () => {
-  return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.text}>Hello</Text>
-    </SafeAreaView>
-  );
+// When user submits order
+const submitOrder = async () => {
+  try {
+    const response = await fetch(`${API_CONFIG.API_URL}/orders`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        userId: currentUser.id,
+        items: cartItems,
+        deliveryAddress: selectedAddress,
+      })
+    });
+    
+    const data = await response.json();
+    
+    if (data.success) {
+      // Order saved to database!
+      Alert.alert('Success', 'Order placed!');
+      navigation.navigate('OrderTracking', { orderId: data.orderId });
+    }
+  } catch (error) {
+    Alert.alert('Error', 'Failed to place order');
+  }
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#fff",
-  },
-  text: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#333",
-  },
-});
-
-export default Order;

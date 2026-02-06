@@ -8,6 +8,7 @@ import React from "react";
 import { auth,db } from "../firebaseConfig";
 import { doc, setDoc } from "firebase/firestore";
 import { collection, addDoc } from "firebase/firestore";
+import { supabase } from "../lib/supabase";
 import {
   StyleSheet,
   Text,
@@ -33,10 +34,11 @@ export default function Home() {
   const handleSignup = async () => {
     try {
       if (!email || !password || !name || !mobile || !dobText) {
-        alert("Please fill all fields");
+        Alert.alert("Error", "Please fill all fields");
         return;
       }
 
+      // 1️⃣ Create user in Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
@@ -45,10 +47,29 @@ export default function Home() {
 
       const user = userCredential.user;
 
-      // Send verification email
+      if (!user) throw new Error("User creation failed");
+
+      // 2️⃣ Insert user into Supabase users table
+      const { error: supabaseError } = await supabase
+        .from("users")
+        .insert([
+          {
+            id: user.uid,        // 🔥 Firebase UID
+            name: name,
+            phone: mobile,
+            role: "customer",
+          },
+        ]);
+
+      if (supabaseError) {
+        console.log("Supabase error:", supabaseError);
+        throw new Error("Failed to sync user with database");
+      }
+
+      // 3️⃣ Send verification email
       await sendEmailVerification(user);
 
-      // Save user data in Firestore
+      // 4️⃣ Save user data in Firestore (optional, since you're using Supabase now)
       await setDoc(doc(db, "users", user.uid), {
         email: user.email,
         name,
@@ -59,14 +80,22 @@ export default function Home() {
         createdAt: new Date(),
       });
 
-      alert("Verification email sent. Check SPAM folder in MAIL if not found. Please verify before logging in.");
+      Alert.alert(
+        "Verification email sent",
+        "Check SPAM folder if not found. Please verify before logging in."
+      );
 
-      await auth.signOut();   // IMPORTANT
+      // 5️⃣ Force logout until verified
+      await auth.signOut();
 
       router.replace("/login");
 
     } catch (error: any) {
-      alert(error.message+" Check SPAM Folder of mail for link. When verified click on login below.");
+      console.log(error);
+      Alert.alert(
+        "Signup Failed",
+        error.message || "Something went wrong"
+      );
     }
   };
 
@@ -377,6 +406,6 @@ const styles = StyleSheet.create({
 
   socialText: { fontSize: 14, fontWeight: "500" },
 
-  login: { textAlign: "center", fontSize: 13, color: "#6B7280" },
+  login: { textAlign: "center", fontSize: 13, color: "#6B7280",padding:10 },
   loginLink: { color: "#0A84FF", fontWeight: "600"},
 });

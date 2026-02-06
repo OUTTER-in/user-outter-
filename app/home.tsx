@@ -125,7 +125,7 @@ export default function Home() {
 
   // Handle location click - navigate to location picker
   const handleLocationClick = () => {
-    router.push("/first_location");
+    router.push("/saved_addresses");
   };
 
   // Format display text for header
@@ -233,7 +233,7 @@ export default function Home() {
             <Ionicons name="notifications-outline" size={30} color="#ffffff" />
             <View style={styles.dot} />
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push("/profile")}>
             <Ionicons name="person-circle-outline" size={34} color="#ffffff" />
           </TouchableOpacity>
         </View>
@@ -349,7 +349,7 @@ export default function Home() {
             <Text style={styles.tabText}>Home</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.tabItem}>
+          <TouchableOpacity style={styles.tabItem} onPress={() => router.push("/order")}>
             <Ionicons name="receipt-outline" size={22} />
             <Text style={styles.tabText}>Orders</Text>
           </TouchableOpacity>
@@ -362,12 +362,12 @@ export default function Home() {
             <Ionicons name="location-outline" size={26} color="#fff" />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.tabItem}>
+          <TouchableOpacity style={styles.tabItem} onPress={() => router.push("/wallet")}>
             <Ionicons name="wallet-outline" size={22} />
             <Text style={styles.tabText}>Wallet</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.tabItem}>
+          <TouchableOpacity style={styles.tabItem} onPress={() => router.push("/profile")}>
             <View style={styles.container}>
               <Image
                 source={require("../assets/appsize.png")}

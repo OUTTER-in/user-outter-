@@ -706,6 +706,7 @@ const DeliveryLocationPicker: React.FC = () => {
     }
 
     const fullAddress = {
+      id: Date.now().toString(), // Unique ID for each address
       label: placeDetails ? placeDetails.name : "Home",
       society: addressComponents.society,
       street: addressComponents.streetAddress,
@@ -716,11 +717,37 @@ const DeliveryLocationPicker: React.FC = () => {
         : `${addressComponents.flatNumber + " / " + addressComponents.society}, ${addressComponents.streetAddress}`,
       coordinates: markerPosition,
       businessDetails: placeDetails || null,
+      isDefault: true,
     };
 
     try {
+      // Save as current address
       await AsyncStorage.setItem("userAddress", JSON.stringify(fullAddress));
       await AsyncStorage.setItem("hasCompletedLocationSetup", "true");
+
+      // Add to saved addresses list
+      const savedAddressesStr = await AsyncStorage.getItem("savedAddresses");
+      let savedAddresses = savedAddressesStr ? JSON.parse(savedAddressesStr) : [];
+      
+      // Mark all other addresses as not default
+      savedAddresses = savedAddresses.map((addr: any) => ({ ...addr, isDefault: false }));
+      
+      // Check if this address already exists (by comparing coordinates)
+      const existingIndex = savedAddresses.findIndex(
+        (addr: any) => 
+          addr.coordinates?.latitude === markerPosition.latitude &&
+          addr.coordinates?.longitude === markerPosition.longitude
+      );
+      
+      if (existingIndex !== -1) {
+        // Update existing address
+        savedAddresses[existingIndex] = fullAddress;
+      } else {
+        // Add new address
+        savedAddresses.push(fullAddress);
+      }
+      
+      await AsyncStorage.setItem("savedAddresses", JSON.stringify(savedAddresses));
 
       console.log("Saved Address:", fullAddress);
 

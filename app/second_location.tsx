@@ -105,8 +105,6 @@ const DeliveryLocationPicker: React.FC = () => {
   const mapRef = useRef<MapView>(null);
   const searchTimeout = useRef<NodeJS.Timeout | null>(null);
 
-  
-
   useEffect(() => {
     (async () => {
       try {
@@ -724,7 +722,7 @@ const DeliveryLocationPicker: React.FC = () => {
     Alert.alert("✓ Address Confirmed", fullAddress.fullFormattedAddress, [
       { text: "OK" },
     ]);
-    return router.push("/order");
+    return router.push("/order_type");
   };
 
   if (loading && !location) {

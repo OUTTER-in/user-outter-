@@ -1,5 +1,7 @@
 {
   "expo": {
+    "name": "Outter",
+    "slug": "outter",
     "name": "OUTTER",
     "slug": "user-outter",
     "version": "1.0.0",

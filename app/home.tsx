@@ -77,12 +77,21 @@ export default function Home() {
 
         <View style={styles.services}>
           {services.map((item, index) => (
-            <View key={index} style={styles.serviceItem}>
+            <TouchableOpacity
+              key={index}
+              style={styles.serviceItem}
+              onPress={() =>
+                router.push({
+                  pathname: "/cart_restorent",
+                  params: { type: item.type },
+                })
+              }
+            >
               <View style={[styles.serviceIcon, { backgroundColor: item.bg }]}>
                 {item.icon}
               </View>
               <Text style={styles.serviceText}>{item.name}</Text>
-            </View>
+            </TouchableOpacity>
           ))}
         </View>
 
@@ -206,41 +215,49 @@ const services = [
     name: "Food",
     bg: "#FFE5E5",
     icon: <MaterialIcons name="restaurant" size={22} color="#FF7A00" />,
+    type: "food",
   },
   {
     name: "Grocery",
     bg: "#E7F7EC",
     icon: <Ionicons name="cart-outline" size={22} color="#2ECC71" />,
+    type: "groceries",
   },
   {
     name: "Printout",
     bg: "#FFEFF5",
     icon: <Ionicons name="print-outline" size={22} color="#FF4081" />,
+    type: "documents",
   },
   {
     name: "Documents",
     bg: "#EAF1FF",
     icon: <Ionicons name="document-outline" size={22} color="#007AFF" />,
+    type: "documents",
   },
   {
     name: "Gifts",
     bg: "#FFEAF4",
     icon: <Ionicons name="gift-outline" size={22} color="#FF69B4" />,
+    type: "gifts",
   },
   {
     name: "Medicine",
     bg: "#EAFBF3",
     icon: <Ionicons name="medkit-outline" size={22} color="#2ECC71" />,
+    type: "medicines",
   },
   {
-    name: "Shopping",
+    name: "fresh plants and flowers",
     bg: "#FFF3E0",
-    icon: <Ionicons name="bag-outline" size={22} color="#FF9800" />,
+    icon: <Ionicons name="bag-outline" size={22} color="#51ff00ff" />,
+    type: "flowers",
   },
   {
     name: "Courier",
     bg: "#EAF1FF",
     icon: <Ionicons name="car-outline" size={22} color="#007AFF" />,
+    type: "groceries",
   },
 ];
 

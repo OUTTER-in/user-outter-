@@ -105,15 +105,7 @@ const DeliveryLocationPicker: React.FC = () => {
   const mapRef = useRef<MapView>(null);
   const searchTimeout = useRef<NodeJS.Timeout | null>(null);
 
-  useEffect(() => {
-    if (GOOGLE_MAPS_API_KEY === "AIzaSyCqJ7Z0kRWRk7IueXLemwjtwkmL3P9Lm3w") {
-      Alert.alert(
-        "API Key Required",
-        "Please add your Google Maps API key in the code.",
-        [{ text: "OK" }],
-      );
-    }
-  }, []);
+  
 
   useEffect(() => {
     (async () => {
@@ -189,6 +181,14 @@ const DeliveryLocationPicker: React.FC = () => {
 
     return "Location";
   };
+
+  async function getPhoneNumber(placeId: string) {
+    const res = await fetch(
+      `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=formatted_phone_number&key=AIzaSyCqJ7Z0kRWRk7IueXLemwjtwkmL3P9Lm3w`
+    );
+    const data = await res.json();
+    return data.result?.formatted_phone_number;
+  }
 
   // NEW: Search for nearby places when map is tapped
   const searchNearbyPlaces = async (latitude: number, longitude: number) => {
@@ -289,7 +289,7 @@ const DeliveryLocationPicker: React.FC = () => {
           openNow: place.opening_hours?.open_now,
           website: place.website,
           placeId: placeId,
-          geometry: place.geometry, // ✅ store geometry
+          geometry: place.geometry,// ✅ store geometry
         };
 
         setPlaceDetails(details);
@@ -808,6 +808,15 @@ const DeliveryLocationPicker: React.FC = () => {
                   ))}
                 </ScrollView>
               )}
+            {placeDetails.phoneNumber ? (
+              <Text style={{ marginTop: 8 }}>
+                📞 {placeDetails.phoneNumber}
+              </Text>
+            ) : (
+              <Text style={{ marginTop: 8, color: "#777" }}>
+                📞 Not available on Google
+              </Text>
+            )}
             </View>
           )}
 

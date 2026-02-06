@@ -1,6 +1,10 @@
 import { Feather, Ionicons, MaterialIcons } from "@expo/vector-icons";
-import { router } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Location from "expo-location";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
+import { useCallback, useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   Image,
   ScrollView,
   StyleSheet,
@@ -13,20 +17,216 @@ import {
   useSafeAreaInsets,
 } from "react-native-safe-area-context";
 
+const GOOGLE_MAPS_API_KEY = "YOUR_GOOGLE_MAPS_API_KEY";
+
 export default function Home() {
+  type AddressType = {
+    label: string;
+    society: string;
+    street: string;
+    flatNumber: string;
+    landmark: string;
+    fullAddress: string;
+    coordinates: any;
+  };
+
+  const { address } = useLocalSearchParams();
+  const [selectedAddress, setSelectedAddress] = useState<any>(null);
+
+  useEffect(() => {
+    if (address) {
+      setSelectedAddress(JSON.parse(address as string));
+    }
+  }, [address]);
+
   const insets = useSafeAreaInsets();
+
+  const [isFirstLaunch, setIsFirstLaunch] = useState(false);
+  const [locationLoading, setLocationLoading] = useState(false);
+  const [currentAddress, setCurrentAddress] = useState<AddressType>({
+    label: "Home",
+    society: "Panchal society",
+    street: "Sector 12",
+    flatNumber: "",
+    landmark: "",
+    fullAddress: "",
+    coordinates: null,
+  });
+
+  // Check if this is first launch and setup location
+  useFocusEffect(
+    useCallback(() => {
+      loadSavedLocation(); // show saved immediately
+      fetchLiveLocation(); // update in background
+    }, []),
+  );
+
+  // Reload location when returning from location picker
+
+  // Check if app is launched for the first time
+  const checkFirstLaunchAndSetupLocation = async () => {
+    try {
+      setLocationLoading(true);
+
+      // Check if user has already set up their address
+      const hasCompletedSetup = await AsyncStorage.getItem(
+        "hasCompletedLocationSetup",
+      );
+      const savedLocation = await AsyncStorage.getItem("userAddress");
+
+      if (!hasCompletedSetup || !savedLocation) {
+        // First time user - need to set up location
+        console.log("First launch detected - navigating to location picker");
+        setIsFirstLaunch(true);
+
+        // Small delay for better UX
+        setTimeout(() => {
+          router.push("/first_location");
+        }, 500);
+      } else {
+        // Returning user - load saved location
+        console.log("Returning user - loading saved location");
+        setIsFirstLaunch(false);
+        await loadSavedLocation();
+      }
+
+      setLocationLoading(false);
+    } catch (error) {
+      console.error("Error checking first launch:", error);
+      setLocationLoading(false);
+    }
+  };
+
+  // Load saved location from AsyncStorage
+  const loadSavedLocation = async () => {
+    try {
+      const savedLocation = await AsyncStorage.getItem("userAddress");
+
+      if (savedLocation) {
+        const addressData = JSON.parse(savedLocation);
+        console.log("Loaded saved address:", addressData);
+        setCurrentAddress(addressData);
+      } else {
+        // No saved location - show default
+        setCurrentAddress({
+          label: "Location",
+          society: "Name of the society/house",
+          street: "Tap to set address",
+          flatNumber: "",
+          landmark: "",
+          fullAddress: "",
+          coordinates: null,
+        });
+      }
+    } catch (error) {
+      console.error("Error loading saved location:", error);
+    }
+  };
+
+  // Handle location click - navigate to location picker
+  const handleLocationClick = () => {
+    router.push("/first_location");
+  };
+
+  // Format display text for header
+
+  const getDisplayText = () => {
+    if (currentAddress.fullAddress) 
+      return currentAddress.fullAddress;
+    if (currentAddress.street) return currentAddress.street;
+    if (currentAddress.society) return currentAddress.society;
+    return "Tap to set location";
+  };
+
+  // Get label for display
+  const getDisplayLabel = () => {
+    // If it's a business, show business name as label
+    if (
+      currentAddress.label &&
+      currentAddress.label !== "Home" &&
+      currentAddress.label !== "Current Location" &&
+      currentAddress.label !== "Location"
+    ) {
+      return currentAddress.label; // Business name
+    }
+    return currentAddress.label; // "Home" or "Current Location"
+  };
+
+  const fetchLiveLocation = async () => {
+    try {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        console.log("Location permission denied");
+        setLocationLoading(false);
+        return;
+      }
+
+      const location = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.Balanced,
+      });
+
+      const geocode = await Location.reverseGeocodeAsync({
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      });
+
+      if (geocode.length > 0) {
+        const place = geocode[0];
+
+        const addressData: AddressType = {
+          label: "Current Location",
+          society: place.name || "",
+          street: place.street || place.district || "",
+          flatNumber: "",
+          landmark: place.subregion || "",
+          fullAddress: `${place.name || ""}, ${place.street || ""}, ${place.city || ""}`,
+          coordinates: location.coords,
+        };
+
+        setCurrentAddress(addressData);
+        await AsyncStorage.setItem("userAddress", JSON.stringify(addressData));
+      }
+    } catch (err) {
+      console.log("GPS error:", err);
+    } finally {
+      setLocationLoading(false);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.safe}>
       {/* HEADER */}
       <View style={styles.header}>
-        <View>
+        <TouchableOpacity
+          onPress={handleLocationClick}
+          style={styles.locationContainer}
+          activeOpacity={0.7}
+        >
           <Text style={styles.deliverText}>Deliver to</Text>
           <View style={styles.locationRow}>
-            <Ionicons name="location-outline" size={18} color="#ffffff" />
-            <Text style={styles.location}>Home - Sector 12</Text>
-            <Ionicons name="chevron-down" size={16} color="#ffffff" />
+            {locationLoading ? (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="small" color="#ffffff" />
+                <Text style={styles.loadingText}>Loading...</Text>
+              </View>
+            ) : (
+              <>
+                <Ionicons name="location-outline" size={18} color="#ffffff" />
+                <View style={styles.addressTextContainer}>
+                  <Text style={styles.location} numberOfLines={3}>
+                    {getDisplayText()}
+                  </Text>
+                  {currentAddress.landmark && (
+                    <Text style={styles.landmark} numberOfLines={1}>
+                      Near {currentAddress.landmark}
+                    </Text>
+                  )}
+                </View>
+                <Ionicons name="chevron-down" size={16} color="#ffffff" />
+              </>
+            )}
           </View>
-        </View>
+        </TouchableOpacity>
 
         <View style={styles.headerIcons}>
           <TouchableOpacity style={styles.iconBtn}>
@@ -49,10 +249,9 @@ export default function Home() {
 
         {/* MAIN CARDS */}
         <View style={styles.bigCards}>
-  
           <TouchableOpacity
             style={[styles.bigCard, { backgroundColor: "#1973cc" }]}
-            onPress={() => router.push("/first_location")}
+            onPress={() => router.push("/second_location")}
             activeOpacity={0.8}
           >
             <Ionicons name="cube-outline" size={32} color="#fff" />
@@ -62,14 +261,13 @@ export default function Home() {
 
           <TouchableOpacity
             style={[styles.bigCard, { backgroundColor: "#00a6ff" }]}
-            onPress={() => router.push("/first_location")}
+            onPress={() => router.push("/second_location")}
             activeOpacity={0.8}
           >
             <Ionicons name="swap-horizontal-outline" size={32} color="#fff" />
             <Text style={styles.bigTitle}>Pickup & Drop</Text>
             <Text style={styles.bigSub}>From home or anywhere</Text>
           </TouchableOpacity>
-
         </View>
 
         {/* ALL SERVICES */}
@@ -157,7 +355,10 @@ export default function Home() {
           </TouchableOpacity>
 
           {/* CENTER TAB */}
-          <TouchableOpacity style={styles.centerTab}>
+          <TouchableOpacity
+            style={styles.centerTab}
+            onPress={handleLocationClick}
+          >
             <Ionicons name="location-outline" size={26} color="#fff" />
           </TouchableOpacity>
 
@@ -173,7 +374,7 @@ export default function Home() {
                 style={{
                   width: 40,
                   height: 40,
-                  borderRadius: 20, // half of 40
+                  borderRadius: 20,
                 }}
                 resizeMode="cover"
               />
@@ -182,29 +383,6 @@ export default function Home() {
         </View>
       </View>
     </SafeAreaView>
-  );
-}
-
-/* ---------- SMALL COMPONENTS ---------- */
-
-function Tab({ icon, label, active, big }: any) {
-  return (
-    <View style={styles.tabItem}>
-      <View
-        style={[big && styles.bigTab, active && { backgroundColor: "#007AFF" }]}
-      >
-        <Ionicons
-          name={icon}
-          size={big ? 26 : 22}
-          color={active ? "#fff" : "#777"}
-        />
-      </View>
-      {!big && (
-        <Text style={[styles.tabText, active && { color: "#007AFF" }]}>
-          {label}
-        </Text>
-      )}
-    </View>
   );
 }
 
@@ -269,16 +447,58 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
-
+    alignItems: "flex-start",
     backgroundColor: "#0A84FF",
     padding: 35,
+    paddingTop: 20,
     borderBottomLeftRadius: 25,
     borderBottomRightRadius: 25,
   },
 
-  deliverText: { fontSize: 12, color: "#ffffff" },
-  locationRow: { flexDirection: "row", alignItems: "center", gap: 4 },
-  location: { fontWeight: "600", color: "#ffffff" },
+  locationContainer: {
+    flex: 1,
+    marginRight: 12,
+  },
+
+  deliverText: {
+    fontSize: 12,
+    color: "#ffffff",
+    marginBottom: 4,
+  },
+
+  locationRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+
+  loadingContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+
+  loadingText: {
+    color: "#ffffff",
+    fontSize: 14,
+  },
+
+  addressTextContainer: {
+    flex: 1,
+    marginHorizontal: 4,
+  },
+
+  location: {
+    fontWeight: "600",
+    color: "#ffffff",
+    fontSize: 14,
+  },
+
+  landmark: {
+    fontSize: 11,
+    color: "#E0E0E0",
+    marginTop: 2,
+  },
 
   headerIcons: { flexDirection: "row", gap: 12 },
   iconBtn: { position: "relative" },
@@ -390,20 +610,14 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     width: "92%",
     alignItems: "center",
-
-    // REMOVE justifyContent: "space-between"
-
-    // Shadow (iOS)
     shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
-
-    // Shadow (Android)
     elevation: 8,
   },
   tabItem: {
-    flex: 1, // 👈 Equal width for all tabs
+    flex: 1,
     alignItems: "center",
     justifyContent: "center",
     gap: 2,
@@ -414,16 +628,14 @@ const styles = StyleSheet.create({
   },
 
   centerTab: {
-    flex: 1, // 👈 Important for equal spacing
+    flex: 1,
     alignItems: "center",
     justifyContent: "center",
-
     width: 58,
     height: 58,
     borderRadius: 29,
     backgroundColor: "#007AFF",
     marginTop: -10,
-
     shadowColor: "#007AFF",
     shadowOpacity: 0.4,
     shadowRadius: 8,
@@ -431,11 +643,6 @@ const styles = StyleSheet.create({
   },
   container: {
     padding: 10,
-    borderRadius: 28,
-  },
-  image: {
-    width: 200, // Static images need width and height specified in style
-    height: 200, // unless using flexbox, in which case you may need to set { width: undefined, height: undefined }
     borderRadius: 28,
   },
 });

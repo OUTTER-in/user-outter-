@@ -1,6 +1,6 @@
 import * as Location from "expo-location";
-import { router } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
+
 import {
   ActivityIndicator,
   Alert,
@@ -16,6 +16,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useRouter } from "expo-router";
 import MapView, { Marker, PROVIDER_GOOGLE, Region } from "react-native-maps";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -103,6 +104,8 @@ const DeliveryLocationPicker: React.FC = () => {
   const [showAddressForm, setShowAddressForm] = useState<boolean>(false);
 
   const mapRef = useRef<MapView>(null);
+  
+    const router = useRouter();
   const searchTimeout = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -179,6 +182,14 @@ const DeliveryLocationPicker: React.FC = () => {
 
     return "Location";
   };
+
+  async function getPhoneNumber(placeId: string) {
+    const res = await fetch(
+      `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=formatted_phone_number&key=AIzaSyCqJ7Z0kRWRk7IueXLemwjtwkmL3P9Lm3w`,
+    );
+    const data = await res.json();
+    return data.result?.formatted_phone_number;
+  }
 
   // NEW: Search for nearby places when map is tapped
   const searchNearbyPlaces = async (latitude: number, longitude: number) => {
@@ -684,45 +695,36 @@ const DeliveryLocationPicker: React.FC = () => {
     setShowAddressForm(false);
   };
 
-  const handleConfirmAddress = () => {
+  const handleConfirmAddress = async () => {
+    if (!markerPosition) {
+      Alert.alert("Error", "Please select a location");
+      return;
+    }
+
     if (!placeDetails && !addressComponents.flatNumber.trim()) {
-      Alert.alert("Required Field", "Please enter your Flat/House number");
+      Alert.alert("Required Field", "Please enter your Flat / House number");
       return;
     }
 
     const fullAddress = {
-      coordinates: markerPosition,
-      isBusinessLocation: !!placeDetails,
-      businessDetails: placeDetails
-        ? {
-            name: placeDetails.name,
-            type: placeDetails.businessType,
-            rating: placeDetails.rating,
-            phoneNumber: placeDetails.phoneNumber,
-            placeId: placeDetails.placeId,
-          }
-        : null,
-      flatNumber: addressComponents.flatNumber,
+      label: placeDetails ? placeDetails.name : "Home",
       society: addressComponents.society,
-      streetAddress: addressComponents.streetAddress,
+      street: addressComponents.streetAddress,
+      flatNumber: addressComponents.flatNumber,
       landmark: addressComponents.landmark,
-      fullFormattedAddress: placeDetails
-        ? `${placeDetails.name} (${placeDetails.businessType}), ${addressComponents.streetAddress}`
-        : `${addressComponents.flatNumber}${
-            addressComponents.society ? ", " + addressComponents.society : ""
-          }, ${addressComponents.streetAddress}${
-            addressComponents.landmark
-              ? ", Near " + addressComponents.landmark
-              : ""
-          }`,
+      fullAddress: placeDetails
+        ? `${placeDetails.name + " " + addressComponents.society}, ${addressComponents.streetAddress}`
+        : `${addressComponents.flatNumber + " / " + addressComponents.society}, ${addressComponents.streetAddress}`,
+      coordinates: markerPosition,
+      businessDetails: placeDetails || null,
     };
 
-    console.log("Address confirmed:", fullAddress);
+    // ✅ ONLY LOG — no AsyncStorage, no navigation
+    console.log("FINAL SELECTED ADDRESS ↓↓↓");
+    console.log(JSON.stringify(fullAddress, null, 2));
 
-    Alert.alert("✓ Address Confirmed", fullAddress.fullFormattedAddress, [
-      { text: "OK" },
-    ]);
-    return router.push("/order_type");
+    Alert.alert("Success", "Address printed in terminal");
+    return router.push("/grocery");
   };
 
   if (loading && !location) {
@@ -797,6 +799,15 @@ const DeliveryLocationPicker: React.FC = () => {
                     />
                   ))}
                 </ScrollView>
+              )}
+              {placeDetails.phoneNumber ? (
+                <Text style={{ marginTop: 8 }}>
+                  📞 {placeDetails.phoneNumber}
+                </Text>
+              ) : (
+                <Text style={{ marginTop: 8, color: "#777" }}>
+                  📞 Not available on Google
+                </Text>
               )}
             </View>
           )}
